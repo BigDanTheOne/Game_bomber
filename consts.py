@@ -6,6 +6,8 @@ maxHeightInCells = 14
 minHeightInCells = 0
 maxWidthInCells = 14
 minWidthInCells = 0
+freeSpace1 = 6
+freeSpace2 = 22
 ground = pygame.image.load('images/ground.png')
 ground = pygame.transform.scale(ground, (int(cell_size), int(cell_size)))
 box = pygame.image.load('images/box.png')
@@ -33,7 +35,7 @@ class surface(Enum):
 
 
 class directions(Enum):
-    up = 1
-    down = 2
-    right = 3
-    left = 4
+    up = 0
+    down = 1
+    right = 2
+    left = 3
