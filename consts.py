@@ -1,5 +1,11 @@
 import pygame
 from enum import Enum
+
+
+pygame.init()
+pygame.font.init()
+
+
 scrren_widht = scrren_height = 720
 cell_size = scrren_widht / 15
 maxHeightInCells = 14
@@ -19,8 +25,19 @@ bombImage = pygame.transform.scale(bombImage, (int(cell_size * 2), int(cell_size
 fireImage = pygame.image.load('images/explosion.png')
 fireImage = pygame.transform.scale(fireImage, (int(cell_size), int(cell_size)))
 
+f = pygame.font.Font(None, 20)
+win = pygame.display.set_mode((scrren_widht, scrren_height))
+pygame.display.set_caption("BomberMan")
+x = 0.5*cell_size
+y = 0.5*cell_size
+widht = 40
+heigth = 60
+speed = 15
 
-class action(Enum):
+units = list()
+
+
+class Action(Enum):
     bomb = 'bomb'
     left = 'left'
     right = 'right'
@@ -28,13 +45,13 @@ class action(Enum):
     down = 'down'
 
 
-class surface(Enum):
+class Surface(Enum):
     ground = 1
     box = 2
     block = 3
 
 
-class directions(Enum):
+class Directions(Enum):
     up = 0
     down = 1
     right = 2

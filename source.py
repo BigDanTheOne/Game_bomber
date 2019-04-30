@@ -3,17 +3,12 @@ import consts
 import pygame
 import random
 from pygame import *
+from consts import *
 pygame.init()
 pygame.font.init()
 
-f = pygame.font.Font(None, 20)
 
-scrren_widht = scrren_height = 720
-cell_size = scrren_widht / 15
-win = pygame.display.set_mode((scrren_widht, scrren_height))
-
-
-class cell:
+class Cell:
 
     def __init__(self, type):   # 1 - ground, 2 - box, 3 - block
         super().__init__()
@@ -21,11 +16,11 @@ class cell:
         self.bomb = False
         self.fire = False
         self.size = scrren_height/15
-        if type == consts.surface.ground:
+        if type == consts.Surface.ground:
             self.image = consts.ground
-        elif type == consts.surface.box:
+        elif type == consts.Surface.box:
             self.image = consts.box
-        elif type == consts.surface.block:
+        elif type == consts.Surface.block:
             self.image = consts.block
 
     def draw(self, x, y):
@@ -36,45 +31,45 @@ class cell:
         elif self.fire is True:
             win.blit(consts.fireImage, (x, y))
 
-    def destroy(self, cellx, celly):
-        self.type = consts.surface.ground
+    def destroy(self, cell_x, cell_y):
+        self.type = consts.Surface.ground
         self.image = consts.ground
-        self.draw(cellx * self.size, celly * self.size)
+        self.draw(cell_x * self.size, cell_y * self.size)
 
 
-class player1:
+class Player1:
 
-    def makeDesision(self):
+    def make_desision(self):
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
-            return consts.action.bomb
+            return consts.Action.bomb
         if keys[pygame.K_LEFT]:
-            return consts.action.left
+            return consts.Action.left
         if keys[pygame.K_RIGHT]:
-            return consts.action.right
+            return consts.Action.right
         if keys[pygame.K_UP]:
-            return consts.action.up
+            return consts.Action.up
         if keys[pygame.K_DOWN]:
-            return consts.action.down
+            return consts.Action.down
 
 
-class player2:
-    def makeDesision(self):
+class Player2:
+    def make_desision(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_f]:
-            return consts.action.bomb
+            return consts.Action.bomb
         if keys[pygame.K_a]:
-            return consts.action.left
+            return consts.Action.left
         if keys[pygame.K_d]:
-            return consts.action.right
+            return consts.Action.right
         if keys[pygame.K_w]:
-            return consts.action.up
+            return consts.Action.up
         if keys[pygame.K_s]:
-            return consts.action.down
+            return consts.Action.down
 
 
-class unit:
+class Unit:
     force: int = 3
     bomb: int = 3
     speed: int = 16
@@ -82,7 +77,7 @@ class unit:
 
     def __init__(self, manager, map, direction):
         super().__init__()
-        self.direction = consts.directions.down
+        self.direction = consts.Directions.down
         self.map = map
         self.manager = manager
         self.x = 10
@@ -94,48 +89,46 @@ class unit:
     def damage(self):
         self.health -= 1
 
-    def moveUp(self):
-        if self.direction != consts.directions.up:
-            self.direction = consts.directions.up
+    def move_up(self):
+        if self.direction != consts.Directions.up:
+            self.direction = consts.Directions.up
         else:
-            self.map.moveUp(self)
+            self.map.move_up(self)
 
-    def moveDown(self):
-        if self.direction != consts.directions.down:
-            self.direction = consts.directions.down
+    def move_down(self):
+        if self.direction != consts.Directions.down:
+            self.direction = consts.Directions.down
         else:
-            self.map.moveDown(self)
+            self.map.move_down(self)
 
-    def moveLeft(self):
-        if self.direction != consts.directions.left:
-            self.direction = consts.directions.left
+    def move_left(self):
+        if self.direction != consts.Directions.left:
+            self.direction = consts.Directions.left
         else:
-            self.map.moveLeft(self)
+            self.map.move_left(self)
 
-    def moveRight(self):
-        if self.direction != consts.directions.right:
-            self.direction = consts.directions.right
+    def move_right(self):
+        if self.direction != consts.Directions.right:
+            self.direction = consts.Directions.right
         else:
-            self.map.moveRight(self)
+            self.map.move_right(self)
 
-    def performAnAction(self):
-        decision = self.manager.makeDesision()
-        if decision == consts.action.bomb and self.bomb > 0:
+    def perform_an_action(self):
+        decision = self.manager.make_desision()
+        if decision == consts.Action.bomb and self.bomb > 0:
             self.bomb -= 1
-            self.map.pickBomb(self.x, self.y, self.force, self)
-        if decision == consts.action.up:
-            self.moveUp()
-        if decision == consts.action.down:
-            self.moveDown()
-        if decision == consts.action.left:
-            self.moveLeft()
-        if decision == consts.action.right:
-            self.moveRight()
+            self.map.pick_bomb(self.x, self.y, self.force, self)
+        if decision == consts.Action.up:
+            self.move_up()
+        if decision == consts.Action.down:
+            self.move_down()
+        if decision == consts.Action.left:
+            self.move_left()
+        if decision == consts.Action.right:
+            self.move_right()
 
 
-class map:
-
-    mapMatrix = list()
+class Map:
 
     def __init__(self, units = list()):
         super().__init__()
@@ -143,7 +136,7 @@ class map:
         self.addBombs = list()
         self.fire = list()
         self.units = units
-        mapMatrix = list()
+        map_matrix = list()
         for i in range(15):
             tmp = list()
             for j in range(15):
@@ -153,30 +146,30 @@ class map:
                 (j % 2 == 0) and i != consts.maxHeightInCells and \
                 j != consts.minWidthInCells and \
                 i != consts.maxWidthInCells and j != consts.maxHeightInCells):
-                    new_cell = cell(consts.surface.block)
+                    new_cell = Cell(consts.Surface.block)
                 elif i + j < consts.freeSpace1 or i + j > consts.freeSpace2:
-                    new_cell = cell(consts.surface.ground)
+                    new_cell = Cell(consts.Surface.ground)
                 else:
-                    new_cell = cell(consts.surface.box)
+                    new_cell = Cell(consts.Surface.box)
                 tmp.append(new_cell)
-            mapMatrix.append(tmp)
-            self.mapMatrix = mapMatrix
+            map_matrix.append(tmp)
+            self.map_matrix = map_matrix
 
-    def destroyCell(self, cellx, celly):
-        self.mapMatrix[cellx][celly].destroy(cellx, celly)
+    def destroy_cell(self, cell_x, cell_y):
+        self.map_matrix[cell_x][cell_y].destroy(cell_x, cell_y)
 
-    def getCellXYByXY(self, x, y):
+    def getcell_xy_by_yx(self, x, y):
         return int(x // cell_size), int(y // cell_size)
 
-    def drawCurrMap(self):
-        for i in range(len(self.mapMatrix)):
-            for j in range(len(self.mapMatrix[i])):
-                self.mapMatrix[i][j].draw(i * self.mapMatrix[i][j].size, j * \
-                self.mapMatrix[i][j].size)
+    def draw_curr_map(self):
+        for i in range(len(self.map_matrix)):
+            for j in range(len(self.map_matrix[i])):
+                self.map_matrix[i][j].draw(i * self.map_matrix[i][j].size, j * \
+                self.map_matrix[i][j].size)
 
-    def moveUp(self, unit):
-        cellx, celly = self.getCellXYByXY(unit.x, unit.y)
-        up = self.whereIsAvailable(unit.x, unit.y)[0]
+    def move_up(self, unit):
+        cell_x, cell_y = self.getcell_xy_by_yx(unit.x, unit.y)
+        up = self.where_is_available(unit.x, unit.y)[0]
         if up == 1 and unit.x % cell_size == cell_size / 2:
             unit.y -= unit.speed
         elif up == 1 and unit.x % cell_size < cell_size / 2:
@@ -184,18 +177,18 @@ class map:
         elif up == 1 and unit.x % cell_size > cell_size / 2:
             unit.x -= unit.speed
         elif unit.x % cell_size > cell_size // 2:
-            if self.mapMatrix[cellx + 1][celly - 1].type == \
-            consts.surface.ground and \
-            self.mapMatrix[cellx + 1][celly].type == consts.surface.ground:
+            if self.map_matrix[cell_x + 1][cell_y - 1].type == \
+            consts.Surface.ground and \
+            self.map_matrix[cell_x + 1][cell_y].type == consts.Surface.ground:
                 unit.x += unit.speed
-        elif self.mapMatrix[cellx - 1][celly - 1].type == \
-        consts.surface.ground and \
-        self.mapMatrix[cellx - 1][celly].type == consts.surface.ground:
+        elif self.map_matrix[cell_x - 1][cell_y - 1].type == \
+        consts.Surface.ground and \
+        self.map_matrix[cell_x - 1][cell_y].type == consts.Surface.ground:
             unit.x -= unit.speed
 
-    def moveDown(self, unit):
-        cellx, celly = self.getCellXYByXY(unit.x, unit.y)
-        down = self.whereIsAvailable(unit.x, unit.y)[1]
+    def move_down(self, unit):
+        cell_x, cell_y = self.getcell_xy_by_yx(unit.x, unit.y)
+        down = self.where_is_available(unit.x, unit.y)[1]
         if down == 1 and unit.x % cell_size == cell_size / 2:
             unit.y += unit.speed
         elif down == 1 and unit.x % cell_size < cell_size / 2:
@@ -203,18 +196,18 @@ class map:
         elif down == 1 and unit.x % cell_size > cell_size / 2:
             unit.x -= unit.speed
         elif unit.x % cell_size > cell_size // 2:
-            if self.mapMatrix[cellx + 1][celly + 1].type == \
-            consts.surface.ground and \
-            self.mapMatrix[cellx + 1][celly].type == consts.surface.ground:
+            if self.map_matrix[cell_x + 1][cell_y + 1].type == \
+            consts.Surface.ground and \
+            self.map_matrix[cell_x + 1][cell_y].type == consts.Surface.ground:
                 unit.x += unit.speed
-        elif self.mapMatrix[cellx - 1][celly + 1].type == \
-        consts.surface.ground and \
-        self.mapMatrix[cellx - 1][celly].type == consts.surface.ground:
+        elif self.map_matrix[cell_x - 1][cell_y + 1].type == \
+        consts.Surface.ground and \
+        self.map_matrix[cell_x - 1][cell_y].type == consts.Surface.ground:
             unit.x -= unit.speed
 
-    def moveRight(self, unit):
-        cellx, celly = self.getCellXYByXY(unit.x, unit.y)
-        right = self.whereIsAvailable(unit.x, unit.y)[2]
+    def move_right(self, unit):
+        cell_x, cell_y = self.getcell_xy_by_yx(unit.x, unit.y)
+        right = self.where_is_available(unit.x, unit.y)[2]
         if right == 1 and unit.y % cell_size == cell_size / 2:
             unit.x += unit.speed
         elif right == 1 and unit.y % cell_size < cell_size / 2:
@@ -222,18 +215,18 @@ class map:
         elif right == 1 and unit.y % cell_size > cell_size / 2:
             unit.y -= unit.speed
         elif unit.y % cell_size > cell_size // 2:
-            if self.mapMatrix[cellx + 1][celly + 1].type == \
-            consts.surface.ground and \
-            self.mapMatrix[cellx][celly + 1].type == consts.surface.ground:
+            if self.map_matrix[cell_x + 1][cell_y + 1].type == \
+            consts.Surface.ground and \
+            self.map_matrix[cell_x][cell_y + 1].type == consts.Surface.ground:
                 unit.y += unit.speed
-        elif self.mapMatrix[cellx + 1][celly - 1].type == \
-        consts.surface.ground and self.mapMatrix[cellx][celly - 1].type == \
-        consts.surface.ground:
+        elif self.map_matrix[cell_x + 1][cell_y - 1].type == \
+        consts.Surface.ground and self.map_matrix[cell_x][cell_y - 1].type == \
+        consts.Surface.ground:
             unit.y -= unit.speed
 
-    def moveLeft(self, unit):
-        cellx, celly = self.getCellXYByXY(unit.x, unit.y)
-        left = self.whereIsAvailable(unit.x, unit.y)[3]
+    def move_left(self, unit):
+        cell_x, cell_y = self.getcell_xy_by_yx(unit.x, unit.y)
+        left = self.where_is_available(unit.x, unit.y)[3]
         if left == 1 and unit.y % cell_size == cell_size / 2:
             unit.x -= unit.speed
         elif left == 1 and unit.y % cell_size < cell_size / 2:
@@ -241,153 +234,152 @@ class map:
         elif left == 1 and unit.y % cell_size > cell_size / 2:
             unit.y -= unit.speed
         elif unit.y % cell_size > cell_size // 2:
-            if self.mapMatrix[cellx - 1][celly + 1].type == \
-            consts.surface.ground and \
-            self.mapMatrix[cellx][celly + 1].type == consts.surface.ground:
+            if self.map_matrix[cell_x - 1][cell_y + 1].type == \
+            consts.Surface.ground and \
+            self.map_matrix[cell_x][cell_y + 1].type == consts.Surface.ground:
                 unit.y += unit.speed
-        elif self.mapMatrix[cellx - 1][celly - 1].type == \
-        consts.surface.ground and \
-        self.mapMatrix[cellx][celly - 1].type == consts.surface.ground:
+        elif self.map_matrix[cell_x - 1][cell_y - 1].type == \
+        consts.Surface.ground and \
+        self.map_matrix[cell_x][cell_y - 1].type == consts.Surface.ground:
             unit.y -= unit.speed
 
-    def drawUnits(self):
+    def draw_units(self):
         global win
         for unit in self.units:
-            self.drawUnit(unit)
+            self.draw_unit(unit)
 
-    def drawUnit(self, unit):
+    def draw_unit(self, unit):
         win.blit(unit.walkDown,
                  (unit.x - unit.walkDown.get_width() // 2, \
                  unit.y - unit.walkDown.get_height() // 2))
 
-    def whereIsAvailable(self, x, y):
-        cellx, celly = self.getCellXYByXY(x, y)
-        print(cellx, celly)
+    def where_is_available(self, x, y):
+        cell_x, cell_y = self.getcell_xy_by_yx(x, y)
+        print(cell_x, cell_y)
         avalibility = [0, 0, 0, 0]  # UP, DOWN, RIGHT, LEFT
-        if celly != consts.maxHeightInCells and \
-        (self.mapMatrix[cellx][celly-1].type == consts.surface.ground or \
-        y % cell_size != cell_size / 2):
+        if cell_y != consts.maxHeightInCells and \
+        (self.map_matrix[cell_x][cell_y-1].type == consts.Surface.ground or \
+         y % cell_size != cell_size / 2):
             avalibility[0] = 1
-        if celly != consts.maxHeightInCells and \
-        (self.mapMatrix[cellx][celly+1].type == consts.surface.ground or \
-        y % cell_size != cell_size / 2):
+        if cell_y != consts.maxHeightInCells and \
+        (self.map_matrix[cell_x][cell_y+1].type == consts.Surface.ground or \
+         y % cell_size != cell_size / 2):
             avalibility[1] = 1
-        if cellx != consts.maxHeightInCells and \
-        (self.mapMatrix[cellx+1][celly].type == consts.surface.ground or \
-        x % cell_size != cell_size / 2):
+        if cell_x != consts.maxHeightInCells and \
+        (self.map_matrix[cell_x+1][cell_y].type == consts.Surface.ground or \
+         x % cell_size != cell_size / 2):
             avalibility[2] = 1
-        if cellx != consts.minHeightInCells and \
-        (self.mapMatrix[cellx-1][celly].type == consts.surface.ground or \
-        x % cell_size != cell_size / 2):
+        if cell_x != consts.minHeightInCells and \
+        (self.map_matrix[cell_x-1][cell_y].type == consts.Surface.ground or \
+         x % cell_size != cell_size / 2):
             avalibility[3] = 1
         return avalibility
 
-    def pickBomb(self, x, y, force, unit):
+    def pick_bomb(self, x, y, force, unit):
         now = pygame.time.get_ticks()
-        cellx, celly = self.getCellXYByXY(x, y)
-        self.bombs.append((cellx, celly, force, now))
+        cell_x, cell_y = self.getcell_xy_by_yx(x, y)
+        self.bombs.append((cell_x, cell_y, force, now))
         self.addBombs.append((unit, now))
-        self.mapMatrix[cellx][celly].bomb = True
-        self.mapMatrix[cellx][celly].fire = True
+        self.map_matrix[cell_x][cell_y].bomb = True
+        self.map_matrix[cell_x][cell_y].fire = True
 
-    def dellBomb(self, cellx, celly):
-        self.mapMatrix[cellx][celly].bomb = False
+    def dell_bomb(self, cell_x, cell_y):
+        self.map_matrix[cell_x][cell_y].bomb = False
 
-    def dellFire(self, cellx, celly):
-        self.mapMatrix[cellx][celly].fire = False
+    def dell_fire(self, cell_x, cell_y):
+        self.map_matrix[cell_x][cell_y].fire = False
 
-    def explosion(self, cellx, celly, force):
+    def explosion(self, cell_x, cell_y, force):
         now = pygame.time.get_ticks()
         for u in units:
-            cellx1, celly1 = self.getCellXYByXY(u.x, u.y)
+            cell_x_1, cell_y_1 = self.getcell_xy_by_yx(u.x, u.y)
             for i in range(force):
-                if self.mapMatrix[cellx][celly + i].type == consts.surface.block:
+                if self.map_matrix[cell_x][cell_y + i].type == consts.Surface.block:
                     break
-                self.mapMatrix[cellx][celly + i].fire = True
-                self.fire.append((cellx, celly + i, now))
-                self.destroyCell(cellx, celly + i)
-                if cellx == cellx1 and celly + i == celly1:
+                self.map_matrix[cell_x][cell_y + i].fire = True
+                self.fire.append((cell_x, cell_y + i, now))
+                self.destroy_cell(cell_x, cell_y + i)
+                if cell_x == cell_x_1 and cell_y + i == cell_y_1:
                     u.damage()
             for i in range(force):
-                if self.mapMatrix[cellx][celly - i].type == consts.surface.block:
+                if self.map_matrix[cell_x][cell_y - i].type == consts.Surface.block:
                     break
-                self.mapMatrix[cellx][celly - i].fire = True
-                self.fire.append((cellx, celly - i, now))
-                self.destroyCell(cellx, celly - i)
-                if cellx == cellx1 and celly - i == celly1:
+                self.map_matrix[cell_x][cell_y - i].fire = True
+                self.fire.append((cell_x, cell_y - i, now))
+                self.destroy_cell(cell_x, cell_y - i)
+                if cell_x == cell_x_1 and cell_y - i == cell_y_1:
                     u.damage()
             for i in range(force):
-                if self.mapMatrix[cellx + i][celly].type == consts.surface.block:
+                if self.map_matrix[cell_x + i][cell_y].type == consts.Surface.block:
                     break
-                self.mapMatrix[cellx + i][celly].fire = True
-                self.fire.append((cellx + i, celly, now))
-                self.destroyCell(cellx + i, celly)
-                if cellx + i == cellx1 and celly == celly1:
+                self.map_matrix[cell_x + i][cell_y].fire = True
+                self.fire.append((cell_x + i, cell_y, now))
+                self.destroy_cell(cell_x + i, cell_y)
+                if cell_x + i == cell_x_1 and cell_y == cell_y_1:
                         u.damage()
             for i in range(force):
-                if self.mapMatrix[cellx - i][celly].type == consts.surface.block:
+                if self.map_matrix[cell_x - i][cell_y].type == consts.Surface.block:
                     break
-                self.mapMatrix[cellx - i][celly].fire = True
-                self.fire.append((cellx - i, celly, now))
-                self.destroyCell(cellx - i, celly)
-                if cellx - i == cellx1 and celly == celly1:
+                self.map_matrix[cell_x - i][cell_y].fire = True
+                self.fire.append((cell_x - i, cell_y, now))
+                self.destroy_cell(cell_x - i, cell_y)
+                if cell_x - i == cell_x_1 and cell_y == cell_y_1:
                         u.damage()
-if __name__ == '__main__':
-    pygame.display.set_caption("BomberMan")
-    x = 0.5*cell_size
-    y = 0.5*cell_size
-    widht = 40
-    heigth = 60
-    speed = 15
 
+
+class Game:
     run = True
-
-    player1 = player1()
-    player2 = player2()
-    units = list()
-    mapx = map()
-    unit1 = unit(player1, mapx, 'down')
-    unit2 = unit(player2, mapx, 'down')
-    unit1.x = int(1.5*cell_size)
-    unit1.y = int(1.5*cell_size)
-    unit2.x = int(scrren_widht - 1.5*cell_size)
-    unit2.y = int(scrren_height - 1.5*cell_size)
+    mapx = Map()
+    Player1 = Player1()
+    Player2 = Player2()
+    unit1 = Unit(Player1, mapx, 'down')
+    unit2 = Unit(Player2, mapx, 'down')
+    unit1.x = int(1.5 * cell_size)
+    unit1.y = int(1.5 * cell_size)
+    unit2.x = int(scrren_widht - 1.5 * cell_size)
+    unit2.y = int(scrren_height - 1.5 * cell_size)
     units.append(unit1)
     units.append(unit2)
     mapx.units = units
-    while run:
-        pygame.time.delay(15)
+    def play(self):
+        while self.run:
+            pygame.time.delay(15)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.run = False
 
-        unit1.performAnAction()
-        unit2.performAnAction()
+            self.unit1.perform_an_action()
+            self.unit2.perform_an_action()
 
-        if len(mapx.bombs) != 0 and pygame.time.get_ticks() - \
-        mapx.bombs[0][3] > 1500:
-            mapx.explosion(mapx.bombs[0][0], mapx.bombs[0][1], mapx.bombs[0][2])
-            mapx.dellBomb(mapx.bombs[0][0], mapx.bombs[0][1])
-            del mapx.bombs[0]
-        if len(mapx.addBombs) != 0 and pygame.time.get_ticks() - \
-        mapx.addBombs[0][1] > 1500:
-            mapx.addBombs[0][0].bomb += 1
-            del mapx.addBombs[0]
-        if len(mapx.fire) != 0 and pygame.time.get_ticks() - \
-        mapx.fire[0][2] > 200:
-            mapx.dellFire(mapx.fire[0][0], mapx.fire[0][1])
-            del mapx.fire[0]
-        mapx.drawCurrMap()
-        mapx.drawUnits()
-        for u in units:
-            if u.health <= 0:
-                run = False
-        c1 = f.render("Health of player1:{}".format(unit1.health), True, \
-        [0, 0, 0], [255, 255, 255])
-        c2 = f.render("Health of player2:{}".format(unit2.health), True, \
-        [0, 0, 0], [255, 255, 255])
-        win.blit(c1, (20, 10))
-        win.blit(c2, (20, 24))
-        pygame.display.update()
+            if len(self.mapx.bombs) != 0 and pygame.time.get_ticks() - \
+                    self.mapx.bombs[0][3] > 1500:
+                self.mapx.explosion(self.mapx.bombs[0][0], self.mapx.bombs[0][1], self.mapx.bombs[0][2])
+                self.mapx.dell_bomb(self.mapx.bombs[0][0], self.mapx.bombs[0][1])
+                del self.mapx.bombs[0]
+            if len(self.mapx.addBombs) != 0 and pygame.time.get_ticks() - \
+                    self.mapx.addBombs[0][1] > 1500:
+                self.mapx.addBombs[0][0].bomb += 1
+                del self.mapx.addBombs[0]
+            if len(self.mapx.fire) != 0 and pygame.time.get_ticks() - \
+                    self.mapx.fire[0][2] > 200:
+                self.mapx.dell_fire(self.mapx.fire[0][0], self.mapx.fire[0][1])
+                del self.mapx.fire[0]
+            self.mapx.draw_curr_map()
+            self.mapx.draw_units()
+            for u in units:
+                if u.health <= 0:
+                    self.run = False
+            c1 = f.render("Health of Player1:{}".format(self.unit1.health), True, \
+                          [0, 0, 0], [255, 255, 255])
+            c2 = f.render("Health of Player2:{}".format(self.unit2.health), True, \
+                          [0, 0, 0], [255, 255, 255])
+            win.blit(c1, (20, 10))
+            win.blit(c2, (20, 24))
+            pygame.display.update()
+
+
+if __name__ == '__main__':
+    game = Game()
+    game.play()
     pygame.quit()
