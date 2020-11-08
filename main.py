@@ -342,7 +342,7 @@ class Game:
     mapx.units = units
     def play(self):
         while self.run:
-            pygame.time.delay(15)
+            pygame.time.delay(45)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
