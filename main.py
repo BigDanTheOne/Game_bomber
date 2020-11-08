@@ -164,8 +164,7 @@ class Map:
     def draw_curr_map(self):
         for i in range(len(self.map_matrix)):
             for j in range(len(self.map_matrix[i])):
-                self.map_matrix[i][j].draw(i * self.map_matrix[i][j].size, j * \
-                self.map_matrix[i][j].size)
+                self.map_matrix[i][j].draw(i * self.map_matrix[i][j].size, j * self.map_matrix[i][j].size)
 
     def move_up(self, unit):
         cell_x, cell_y = self.getcell_xy_by_yx(unit.x, unit.y)
@@ -255,7 +254,7 @@ class Map:
 
     def where_is_available(self, x, y):
         cell_x, cell_y = self.getcell_xy_by_yx(x, y)
-        print(cell_x, cell_y)
+      
         avalibility = [0, 0, 0, 0]  # UP, DOWN, RIGHT, LEFT
         if cell_y != consts.maxHeightInCells and \
         (self.map_matrix[cell_x][cell_y-1].type == consts.Surface.ground or \
@@ -352,13 +351,11 @@ class Game:
             self.unit1.perform_an_action()
             self.unit2.perform_an_action()
 
-            if len(self.mapx.bombs) != 0 and pygame.time.get_ticks() - \
-                    self.mapx.bombs[0][3] > 1500:
+            if len(self.mapx.bombs) != 0 and pygame.time.get_ticks() - self.mapx.bombs[0][3] > 9500:
                 self.mapx.explosion(self.mapx.bombs[0][0], self.mapx.bombs[0][1], self.mapx.bombs[0][2])
                 self.mapx.dell_bomb(self.mapx.bombs[0][0], self.mapx.bombs[0][1])
                 del self.mapx.bombs[0]
-            if len(self.mapx.addBombs) != 0 and pygame.time.get_ticks() - \
-                    self.mapx.addBombs[0][1] > 1500:
+            if len(self.mapx.addBombs) != 0 and pygame.time.get_ticks() - self.mapx.addBombs[0][1] > 1500:
                 self.mapx.addBombs[0][0].bomb += 1
                 del self.mapx.addBombs[0]
             if len(self.mapx.fire) != 0 and pygame.time.get_ticks() - \
